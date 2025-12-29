@@ -1,0 +1,25 @@
+TEXTURE REQUIREMENTS
+====================
+
+Place your 16x16 pixel PNG texture files in this directory.
+
+Required naming:
+- boulder_badge.png
+- cascade_badge.png
+- thunder_badge.png
+
+File requirements:
+- Format: PNG
+- Size: 16x16 pixels
+- Color: RGBA (32-bit with alpha/transparency)
+- Naming: lowercase with underscores
+
+Example structure:
+  textures/item/
+    ├── boulder_badge.png    (16x16 PNG)
+    ├── cascade_badge.png    (16x16 PNG)
+    └── thunder_badge.png    (16x16 PNG)
+
+See SPRITE_GUIDE.md in the root directory for detailed instructions on creating sprites.
+
+If textures are missing, items will display with the purple/black "missing texture" checkerboard pattern in-game.
