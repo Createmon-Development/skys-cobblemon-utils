@@ -7,7 +7,7 @@ modId = "skyscobblemonutilsmod"
 version = "1.0.0"
 displayName = "Sky's Cobblemon Utils"
 description = '''
-A utility mod for Cobblemon that adds quality of life features including battle aggro protection and custom items.
+A utility mod for Cobblemon that adds quality of life features including battle aggro protection.
 '''
 authors = "Sky"
 
