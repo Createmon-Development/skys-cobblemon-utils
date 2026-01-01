@@ -26,6 +26,10 @@ public class ModItems {
     public static final DeferredItem<Item> HEARTBOUND_BADGE = ITEMS.register("heartbound_badge",
         () -> new GymBadgeItem(new Item.Properties()));
 
+    // Test item for loot pool integration
+    public static final DeferredItem<Item> TEST_ITEM = ITEMS.register("test_item",
+        () -> new Item(new Item.Properties()));
+
     // Creative tab for the mod items
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> COBBLEMON_UTILS_TAB = CREATIVE_MODE_TABS.register("cobblemon_utils_tab", () -> CreativeModeTab.builder()
         .title(Component.translatable("itemGroup.skyscobblemonutilsmod"))
@@ -33,6 +37,7 @@ public class ModItems {
         .displayItems((parameters, output) -> {
             output.accept(DIESELTON_BADGE.get());
             output.accept(HEARTBOUND_BADGE.get());
+            output.accept(TEST_ITEM.get());
         }).build());
 
     public static void register(IEventBus eventBus) {

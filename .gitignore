@@ -3,6 +3,8 @@
 build/
 out/
 run/
+runs/
+.cache/
 
 # Eclipse
 .classpath
