@@ -13,6 +13,8 @@ import net.minecraft.world.entity.ai.goal.target.TargetGoal;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.monster.warden.Warden;
+import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.world.entity.NeutralMob;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -130,11 +132,21 @@ public class BattleAggroHandler {
         // Get all nearby mobs and clear their target if it's this player (except bosses)
         player.serverLevel().getEntitiesOfClass(Mob.class, player.getBoundingBox().inflate(32.0D))
             .forEach(mob -> {
-                if (mob.getTarget() == player && !isBossMonster(mob)) {
-                    mob.setTarget(null);
-                    SkysCobblemonUtils.LOGGER.debug("Cleared aggro from {} on player {}",
-                        mob.getType().getDescription().getString(),
-                        player.getName().getString());
+                if (!isBossMonster(mob)) {
+                    if (mob.getTarget() == player) {
+                        mob.setTarget(null);
+                        SkysCobblemonUtils.LOGGER.debug("Cleared aggro from {} on player {}",
+                            mob.getType().getDescription().getString(),
+                            player.getName().getString());
+                    }
+
+                    // Special handling for neutral mobs (like piglins) - clear their anger
+                    if (mob instanceof NeutralMob neutralMob) {
+                        neutralMob.stopBeingAngry();
+                        SkysCobblemonUtils.LOGGER.debug("Cleared neutral mob anger from {} towards player {}",
+                            mob.getType().getDescription().getString(),
+                            player.getName().getString());
+                    }
                 }
             });
     }
