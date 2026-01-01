@@ -2,7 +2,6 @@ package com.skys.cobblemonutilsmod;
 
 import com.skys.cobblemonutilsmod.events.BattleAggroHandler;
 import com.skys.cobblemonutilsmod.events.PokemonCaptureHandler;
-import com.skys.cobblemonutilsmod.items.ModItems;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
@@ -16,9 +15,6 @@ public class SkysCobblemonUtils {
 
     public SkysCobblemonUtils(IEventBus modEventBus) {
         LOGGER.info("Initializing Sky's Cobblemon Utils");
-
-        // Register items
-        ModItems.register(modEventBus);
 
         // Register event handlers
         NeoForge.EVENT_BUS.register(new BattleAggroHandler());
