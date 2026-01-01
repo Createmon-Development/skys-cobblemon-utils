@@ -14,7 +14,10 @@ import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.monster.piglin.Piglin;
+import net.minecraft.world.entity.monster.piglin.PiglinBrute;
+import net.minecraft.world.entity.monster.piglin.AbstractPiglin;
 import net.minecraft.world.entity.NeutralMob;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.living.LivingChangeTargetEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
@@ -87,6 +90,7 @@ public class BattleAggroHandler {
     /**
      * Prevents mobs from targeting players who are in battle.
      * Boss monsters (Wither, Ender Dragon, Warden) are exempt.
+     * Note: This event doesn't fire for Brain-AI mobs like Piglins/Piglin Brutes - they're handled separately in clearPlayerAggro.
      */
     @SubscribeEvent
     public void onMobTargetChange(LivingChangeTargetEvent event) {
@@ -101,6 +105,36 @@ public class BattleAggroHandler {
                 SkysCobblemonUtils.LOGGER.debug("Prevented mob from targeting player {} (in battle)", player.getName().getString());
             }
         }
+    }
+
+    /**
+     * Tick event to continuously clear Brain-AI mob targets while players are in battle.
+     * Brain-AI mobs (like Piglin Brutes) don't fire LivingChangeTargetEvent, so we need to actively clear them.
+     */
+    @SubscribeEvent
+    public void onServerTick(net.neoforged.neoforge.event.tick.ServerTickEvent.Post event) {
+        if (playersInBattle.isEmpty()) {
+            return; // No players in battle, skip processing
+        }
+
+        event.getServer().getAllLevels().forEach(level -> {
+            playersInBattle.forEach(playerUUID -> {
+                ServerPlayer player = level.getServer().getPlayerList().getPlayer(playerUUID);
+                if (player != null && player.serverLevel() == level) {
+                    // Check for Brain-AI mobs (Piglins, Piglin Brutes) targeting the player
+                    level.getEntitiesOfClass(AbstractPiglin.class, player.getBoundingBox().inflate(16.0D))
+                        .forEach(piglin -> {
+                            if (piglin.getBrain().getMemory(MemoryModuleType.ATTACK_TARGET).orElse(null) == player) {
+                                piglin.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
+                                piglin.setTarget(null);
+                                SkysCobblemonUtils.LOGGER.debug("Cleared Brain-AI targeting from {} on player {} (in battle)",
+                                    piglin.getType().getDescription().getString(),
+                                    player.getName().getString());
+                            }
+                        });
+                }
+            });
+        });
     }
 
     /**
@@ -144,6 +178,15 @@ public class BattleAggroHandler {
                     if (mob instanceof NeutralMob neutralMob) {
                         neutralMob.stopBeingAngry();
                         SkysCobblemonUtils.LOGGER.debug("Cleared neutral mob anger from {} towards player {}",
+                            mob.getType().getDescription().getString(),
+                            player.getName().getString());
+                    }
+
+                    // Special handling for Brain-AI mobs (Piglins, Piglin Brutes)
+                    // They use Brain memory instead of traditional goals
+                    if (mob instanceof AbstractPiglin piglin) {
+                        piglin.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
+                        SkysCobblemonUtils.LOGGER.debug("Cleared Brain-AI attack target from {} towards player {}",
                             mob.getType().getDescription().getString(),
                             player.getName().getString());
                     }
