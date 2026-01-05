@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.skys.cobblemonutilsmod.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BrushItemMixin"
+  ],
+  "client": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,5 +1,7 @@
 package com.skys.cobblemonutilsmod;
 
+import com.skys.cobblemonutilsmod.archaeology.DailyResetManager;
+import com.skys.cobblemonutilsmod.archaeology.ModArchaeologyRegistry;
 import com.skys.cobblemonutilsmod.events.BattleAggroHandler;
 import com.skys.cobblemonutilsmod.events.PokemonCaptureHandler;
 import net.neoforged.bus.api.IEventBus;
@@ -16,8 +18,12 @@ public class SkysCobblemonUtils {
     public SkysCobblemonUtils(IEventBus modEventBus) {
         LOGGER.info("Initializing Sky's Cobblemon Utils");
 
+        // Register archaeology blocks and entities
+        ModArchaeologyRegistry.register(modEventBus);
+
         // Register event handlers
         NeoForge.EVENT_BUS.register(new BattleAggroHandler());
+        NeoForge.EVENT_BUS.register(DailyResetManager.class);
         new PokemonCaptureHandler(); // Registers itself via Cobblemon event system
 
         LOGGER.info("Sky's Cobblemon Utils initialized successfully");
