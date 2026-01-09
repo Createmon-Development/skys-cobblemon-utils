@@ -40,6 +40,10 @@ runs {
 dependencies {
     implementation "net.neoforged:neoforge:21.1.72"
 
+    // MixinExtras for advanced mixin functionality (use same version bundled with NeoForge)
+    compileOnly "io.github.llamalad7:mixinextras-common:0.4.1"
+    annotationProcessor "io.github.llamalad7:mixinextras-common:0.4.1"
+
     compileOnly files("../../existing_mods/cobblemon-main/build/libs/Cobblemon-neoforge-1.7.1+1.21.1.jar")
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
 }
