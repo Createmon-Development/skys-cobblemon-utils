@@ -1,5 +1,7 @@
 {
   "block.skyscobblemonutilsmod.daily_suspicious_sand": "Daily Suspicious Sand",
   "block.skyscobblemonutilsmod.daily_suspicious_gravel": "Daily Suspicious Gravel",
-  "itemGroup.skyscobblemonutilsmod.archaeology": "Sky's Cobblemon Utils - Archaeology"
+  "itemGroup.skyscobblemonutilsmod.archaeology": "Sky's Cobblemon Utils - Archaeology",
+  "item.skyscobblemonutilsmod.microphone": "Microphone",
+  "itemGroup.skyscobblemonutilsmod.voice_chat_tab": "Sky's Cobblemon Utils - Voice Chat"
 }

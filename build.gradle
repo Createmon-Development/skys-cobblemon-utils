@@ -19,6 +19,10 @@ repositories {
         name = 'Cobblemon'
         url = 'https://maven.impactdev.net/repository/development/'
     }
+    maven {
+        name = 'SimpleVoiceChat'
+        url = 'https://maven.maxhenkel.de/repository/public'
+    }
 }
 
 runs {
@@ -43,6 +47,9 @@ dependencies {
     // MixinExtras for advanced mixin functionality (use same version bundled with NeoForge)
     compileOnly "io.github.llamalad7:mixinextras-common:0.4.1"
     annotationProcessor "io.github.llamalad7:mixinextras-common:0.4.1"
+
+    // Simple Voice Chat API
+    compileOnly "de.maxhenkel.voicechat:voicechat-api:2.6.0"
 
     compileOnly files("../../existing_mods/cobblemon-main/build/libs/Cobblemon-neoforge-1.7.1+1.21.1.jar")
     compileOnly "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
