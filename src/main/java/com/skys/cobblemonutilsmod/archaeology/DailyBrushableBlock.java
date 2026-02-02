@@ -5,15 +5,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.BrushableBlock;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.RenderShape;
-import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
@@ -64,12 +60,7 @@ public class DailyBrushableBlock extends Block implements EntityBlock {
         if (blockEntity instanceof DailyBrushableBlockEntity brushable) {
             brushable.checkReset();
         }
-
-        // Handle falling behavior like suspicious sand/gravel
-        if (FallingBlock.isFree(level.getBlockState(pos.below())) && pos.getY() >= level.getMinBuildHeight()) {
-            FallingBlockEntity fallingBlock = FallingBlockEntity.fall(level, pos, state);
-            fallingBlock.disableDrop();
-        }
+        // Note: Falling behavior removed - these blocks are indestructible and should not fall
     }
 
     @Nullable

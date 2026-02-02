@@ -39,10 +39,17 @@ import java.util.Set;
 import java.util.UUID;
 
 public class DailyBrushableBlockEntity extends BlockEntity implements IBrushable {
-    public static final ResourceKey<LootTable> DEFAULT_LOOT_TABLE = ResourceKey.create(
+    // Separate loot tables for sand and gravel
+    public static final ResourceKey<LootTable> SAND_LOOT_TABLE = ResourceKey.create(
             Registries.LOOT_TABLE,
-            ResourceLocation.fromNamespaceAndPath(SkysCobblemonUtils.MOD_ID, "archaeology/daily_brushable")
+            ResourceLocation.fromNamespaceAndPath(SkysCobblemonUtils.MOD_ID, "archaeology/daily_brushable_sand")
     );
+    public static final ResourceKey<LootTable> GRAVEL_LOOT_TABLE = ResourceKey.create(
+            Registries.LOOT_TABLE,
+            ResourceLocation.fromNamespaceAndPath(SkysCobblemonUtils.MOD_ID, "archaeology/daily_brushable_gravel")
+    );
+    // Legacy fallback
+    public static final ResourceKey<LootTable> DEFAULT_LOOT_TABLE = SAND_LOOT_TABLE;
 
     private static final int BRUSH_COOLDOWN_TICKS = 10;
     private static final int BRUSH_RESET_TICKS = 40;
@@ -62,12 +69,25 @@ public class DailyBrushableBlockEntity extends BlockEntity implements IBrushable
     private Direction hitDirection;
     private ItemStack currentItem = ItemStack.EMPTY;
 
-    // Loot table (configurable via datapack)
-    private ResourceKey<LootTable> lootTable = DEFAULT_LOOT_TABLE;
+    // Loot table (configurable via datapack, defaults based on block type)
+    private ResourceKey<LootTable> lootTable = null; // Will be set based on block type
     private long lootTableSeed = 0;
 
     public DailyBrushableBlockEntity(BlockPos pos, BlockState state) {
         super(ModArchaeologyRegistry.DAILY_BRUSHABLE_BLOCK_ENTITY.get(), pos, state);
+        // Set default loot table based on block type
+        this.lootTable = getDefaultLootTableForBlock(state);
+    }
+
+    /**
+     * Determines the default loot table based on the block type.
+     */
+    private static ResourceKey<LootTable> getDefaultLootTableForBlock(BlockState state) {
+        if (state.is(ModArchaeologyRegistry.DAILY_SUSPICIOUS_GRAVEL.get())) {
+            return GRAVEL_LOOT_TABLE;
+        }
+        // Default to sand loot table
+        return SAND_LOOT_TABLE;
     }
 
     @Override
@@ -413,10 +433,12 @@ public class DailyBrushableBlockEntity extends BlockEntity implements IBrushable
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
 
-        // Load loot table
+        // Load loot table (or use block-type default if not saved)
         if (tag.contains("LootTable")) {
             lootTable = ResourceKey.create(Registries.LOOT_TABLE,
                     ResourceLocation.parse(tag.getString("LootTable")));
+        } else {
+            lootTable = getDefaultLootTableForBlock(getBlockState());
         }
         if (tag.contains("LootTableSeed")) {
             lootTableSeed = tag.getLong("LootTableSeed");

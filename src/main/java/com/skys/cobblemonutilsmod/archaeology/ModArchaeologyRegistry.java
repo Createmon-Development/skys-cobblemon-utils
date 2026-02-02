@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -26,22 +27,26 @@ public class ModArchaeologyRegistry {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, SkysCobblemonUtils.MOD_ID);
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, SkysCobblemonUtils.MOD_ID);
 
-    // Daily Suspicious Sand
+    // Daily Suspicious Sand - indestructible and unmovable
     public static final DeferredBlock<Block> DAILY_SUSPICIOUS_SAND = BLOCKS.register("daily_suspicious_sand",
             () -> new DailyBrushableBlock(
                     Blocks.SAND,
                     SoundEvents.BRUSH_SAND,
                     SoundEvents.BRUSH_SAND_COMPLETED,
                     BlockBehaviour.Properties.ofFullCopy(Blocks.SUSPICIOUS_SAND)
+                            .strength(-1.0F, 3600000.0F)  // Indestructible like bedrock
+                            .pushReaction(PushReaction.BLOCK)  // Cannot be pushed by pistons
             ));
 
-    // Daily Suspicious Gravel
+    // Daily Suspicious Gravel - indestructible and unmovable
     public static final DeferredBlock<Block> DAILY_SUSPICIOUS_GRAVEL = BLOCKS.register("daily_suspicious_gravel",
             () -> new DailyBrushableBlock(
                     Blocks.GRAVEL,
                     SoundEvents.BRUSH_GRAVEL,
                     SoundEvents.BRUSH_GRAVEL_COMPLETED,
                     BlockBehaviour.Properties.ofFullCopy(Blocks.SUSPICIOUS_GRAVEL)
+                            .strength(-1.0F, 3600000.0F)  // Indestructible like bedrock
+                            .pushReaction(PushReaction.BLOCK)  // Cannot be pushed by pistons
             ));
 
     // Block Items
