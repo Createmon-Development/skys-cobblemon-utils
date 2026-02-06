@@ -204,8 +204,8 @@ public class DailyBrushableBlockEntity extends BlockEntity implements IBrushable
         // Mark this player as having brushed today
         brushedPlayers.add(player.getUUID());
 
-        // Reset brushing state but keep the block visually "depleted" (dusted state 3)
-        resetBrushingStateKeepVisual();
+        // Reset brushing state and visual back to default so other players see a fresh block
+        resetBrushingState();
 
         setChanged();
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
@@ -253,44 +253,39 @@ public class DailyBrushableBlockEntity extends BlockEntity implements IBrushable
     public void checkReset() {
         if (level == null) return;
 
-        // If any players have brushed today, keep the block at dusted state 3
-        // Don't reset the visual appearance until the daily reset
-        if (!brushedPlayers.isEmpty()) {
-            // Just reset the brushing state variables, but keep visual at state 3
-            brushingPlayerUUID = null;
-            hitDirection = null;
-            brushCount = 0;
-            brushCountResetsAtTick = 0;
-            coolDownEndsAtTick = 0;
-            currentItem = ItemStack.EMPTY;
+        // If someone is actively brushing and they still have loot available, let them continue
+        if (brushingPlayerUUID != null && !brushedPlayers.contains(brushingPlayerUUID)) {
+            // Active brusher hasn't finished yet - handle normal brush timeout
+            if (brushCount != 0 && level.getGameTime() >= brushCountResetsAtTick) {
+                int previousState = getCompletionState();
+                brushCount = Math.max(0, brushCount - 2);
+                int newState = getCompletionState();
 
-            // Ensure block stays at dusted state 3 (harvested appearance)
-            if (!level.isClientSide()) {
-                BlockState state = getBlockState();
-                if (state.hasProperty(BlockStateProperties.DUSTED) && state.getValue(BlockStateProperties.DUSTED) != 3) {
-                    level.setBlock(worldPosition, state.setValue(BlockStateProperties.DUSTED, 3), 3);
+                if (previousState != newState) {
+                    level.setBlock(worldPosition, getBlockState().setValue(BlockStateProperties.DUSTED, newState), 3);
                 }
+
+                brushCountResetsAtTick = level.getGameTime() + 4L;
+            }
+
+            if (brushCount == 0) {
+                resetBrushingState();
+                // If other players have brushed, show harvested state when idle
+                if (!brushedPlayers.isEmpty() && !level.isClientSide()) {
+                    BlockState state = getBlockState();
+                    if (state.hasProperty(BlockStateProperties.DUSTED) && state.getValue(BlockStateProperties.DUSTED) != 0) {
+                        level.setBlock(worldPosition, state.setValue(BlockStateProperties.DUSTED, 0), 3);
+                    }
+                }
+            } else {
+                level.scheduleTick(worldPosition, getBlockState().getBlock(), 2);
             }
             return;
         }
 
-        if (brushCount != 0 && level.getGameTime() >= brushCountResetsAtTick) {
-            int previousState = getCompletionState();
-            brushCount = Math.max(0, brushCount - 2);
-            int newState = getCompletionState();
-
-            if (previousState != newState) {
-                level.setBlock(worldPosition, getBlockState().setValue(BlockStateProperties.DUSTED, newState), 3);
-            }
-
-            brushCountResetsAtTick = level.getGameTime() + 4L;
-        }
-
-        if (brushCount == 0) {
-            resetBrushingState();
-        } else {
-            level.scheduleTick(worldPosition, getBlockState().getBlock(), 2);
-        }
+        // No one is actively brushing (or current brusher already brushed today)
+        // Always reset to default visual so the block looks fresh for other players
+        resetBrushingState();
     }
 
     private void resetBrushingState() {
@@ -305,27 +300,6 @@ public class DailyBrushableBlockEntity extends BlockEntity implements IBrushable
             BlockState state = getBlockState();
             if (state.hasProperty(BlockStateProperties.DUSTED) && state.getValue(BlockStateProperties.DUSTED) != 0) {
                 level.setBlock(worldPosition, state.setValue(BlockStateProperties.DUSTED, 0), 3);
-            }
-        }
-    }
-
-    /**
-     * Resets the brushing state but keeps the visual "depleted" appearance (dusted = 3).
-     * Used when a player completes brushing so the block shows it's been harvested.
-     */
-    private void resetBrushingStateKeepVisual() {
-        brushingPlayerUUID = null;
-        hitDirection = null;
-        brushCount = 0;
-        brushCountResetsAtTick = 0;
-        coolDownEndsAtTick = 0;
-        currentItem = ItemStack.EMPTY;
-
-        // Keep the block at dusted state 3 to show it's been harvested
-        if (level != null && !level.isClientSide()) {
-            BlockState state = getBlockState();
-            if (state.hasProperty(BlockStateProperties.DUSTED) && state.getValue(BlockStateProperties.DUSTED) != 3) {
-                level.setBlock(worldPosition, state.setValue(BlockStateProperties.DUSTED, 3), 3);
             }
         }
     }
